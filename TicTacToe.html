@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+    }
+    
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 2em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ddd;
+      cursor: pointer;
+    }
+    
+    .cell:hover {
+      background-color: #ccc;
+    }
+  </style>
+  <title>XO Game</title>
+</head>
+<body>
+  <div id="board"></div>
+  <script>
+    const board = document.getElementById('board');
+    let currentPlayer = 'X';
+    let gameBoard = ['', '', '', '', '', '', '', '', ''];
+    
+    function checkWinner() {
+      const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+        [0, 4, 8], [2, 4, 6]             // Diagonals
+      ];
+
+      for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function checkDraw() {
+      return !gameBoard.includes('');
+    }
+
+    function handleCellClick(index) {
+      if (gameBoard[index] === '' && !checkWinner() && !checkDraw()) {
+        gameBoard[index] = currentPlayer;
+        renderBoard();
+        
+        if (checkWinner()) {
+          alert(`Player ${currentPlayer} wins!`);
+        } else if (checkDraw()) {
+          alert('It\'s a draw!');
+        } else {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        }
+      }
+    }
+    function drawWinLine(pattern) {
+      const [a, b, c] = pattern;
+      const cells = document.querySelectorAll('.cell');
+      const line = document.createElement('div');
+      line.classList.add('win-line');
+
+      if (a === 0 && c === 2) {
+        line.style.top = `${cells[a].offsetTop}px`;
+      } else if (a === 3 && c === 5) {
+        line.style.top = `${cells[a].offsetTop + cells[a].offsetHeight}px`;
+      } else if (a === 6 && c === 8) {
+        line.style.top = `${cells[a].offsetTop + cells[a].offsetHeight * 2}px`;
+      } else if (a === 0 && c === 6) {
+        line.style.left = `${cells[a].offsetLeft}px`;
+        line.style.transform = 'rotate(90deg)';
+      } else if (a === 1 && c === 7) {
+        line.style.left = `${cells[a].offsetLeft + cells[a].offsetWidth}px`;
+        line.style.transform = 'rotate(90deg)';
+      } else if (a === 2 && c === 8) {
+        line.style.left = `${cells[a].offsetLeft + cells[a].offsetWidth * 2}px`;
+        line.style.transform = 'rotate(90deg)';
+      } else if (a === 0 && c === 8) {
+        line.style.left = '0';
+        line.style.top = '0';
+        line.style.transform = 'rotate(45deg)';
+      } else if (a === 2 && c === 6) {
+        line.style.right = '0';
+        line.style.top = '0';
+        line.style.transform = 'rotate(-45deg)';
+      }
+
+      document.body.appendChild(line);
+    }
+
+    function renderBoard() {
+      board.innerHTML = '';
+      gameBoard.forEach((value, index) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.textContent = value;
+        cell.addEventListener('click', () => handleCellClick(index));
+        board.appendChild(cell);
+      });
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
